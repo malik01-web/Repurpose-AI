@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>RepurposeAI — 1 Article → 4 Platforms</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #080a0f;
+      --surface: #0e1117;
+      --border: #1e2535;
+      --accent: #7c3aed;
+      --accent2: #a855f7;
+      --text: #e8eaf0;
+      --muted: #5a6070;
+      --success: #22d3a0;
+      --error: #f87171;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Syne', sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* Noise texture overlay */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.4;
+    }
+
+    /* Glow orb */
+    body::after {
+      content: '';
+      position: fixed;
+      top: -200px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(circle, rgba(124,58,237,0.15) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .wrapper {
+      position: relative;
+      z-index: 1;
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+
+    /* NAV */
+    nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 24px 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .logo {
+      font-size: 1.1rem;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+    }
+
+    .logo span { color: var(--accent2); }
+
+    .settings-btn {
+      background: none;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      cursor: pointer;
+      padding: 8px 14px;
+      border-radius: 8px;
+      font-family: 'DM Mono', monospace;
+      font-size: 0.75rem;
+      transition: all 0.2s;
+    }
+    .settings-btn:hover { border-color: var(--accent); color: var(--text); }
+
+    /* HERO */
+    .hero {
+      text-align: center;
+      padding: 64px 0 48px;
+    }
+
+    .badge {
+      display: inline-block;
+      background: rgba(124,58,237,0.15);
+      border: 1px solid rgba(124,58,237,0.3);
+      color: var(--accent2);
+      font-family: 'DM Mono', monospace;
+      font-size: 0.7rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      padding: 6px 14px;
+      border-radius: 100px;
+      margin-bottom: 24px;
+    }
+
+    h1 {
+      font-size: clamp(2rem, 6vw, 3.2rem);
+      font-weight: 800;
+      line-height: 1.1;
+      letter-spacing: -1.5px;
+      margin-bottom: 16px;
+    }
+
+    h1 em {
+      font-style: normal;
+      background: linear-gradient(135deg, var(--accent2), #c084fc);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .sub {
+      color: var(--muted);
+      font-size: 1rem;
+      font-weight: 400;
+      max-width: 440px;
+      margin: 0 auto;
+      line-height: 1.6;
+    }
+
+    /* PLATFORMS */
+    .platforms {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-top: 28px;
+      flex-wrap: wrap;
+    }
+
+    .platform-tag {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: 6px 14px;
+      border-radius: 100px;
+      font-size: 0.8rem;
+      font-family: 'DM Mono', monospace;
+      color: var(--muted);
+    }
+
+    /* MAIN CARD */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 28px;
+      margin-bottom: 20px;
+    }
+
+    .card-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.7rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 12px;
+    }
+
+    textarea {
+      width: 100%;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      color: var(--text);
+      font-family: 'DM Mono', monospace;
+      font-size: 0.85rem;
+      line-height: 1.7;
+      padding: 16px;
+      resize: vertical;
+      min-height: 180px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    textarea:focus { border-color: var(--accent); }
+    textarea::placeholder { color: var(--muted); }
+
+    .char-count {
+      text-align: right;
+      font-family: 'DM Mono', monospace;
+      font-size: 0.7rem;
+      color: var(--muted);
+      margin-top: 8px;
+    }
+
+    .btn-primary {
+      width: 100%;
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      padding: 16px;
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-top: 16px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn-primary:hover:not(:disabled) {
+      background: var(--accent2);
+      transform: translateY(-1px);
+      box-shadow: 0 8px 30px rgba(124,58,237,0.4);
+    }
+
+    .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    /* LOADING */
+    .loading {
+      display: none;
+      text-align: center;
+      padding: 48px 0;
+    }
+
+    .spinner {
+      width: 40px;
+      height: 40px;
+      border: 2px solid var(--border);
+      border-top-color: var(--accent2);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin: 0 auto 16px;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .loading p {
+      color: var(--muted);
+      font-family: 'DM Mono', monospace;
+      font-size: 0.85rem;
+    }
+
+    /* RESULTS */
+    .results { display: none; }
+
+    .tabs {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+
+    .tab {
+      background: none;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-family: 'DM Mono', monospace;
+      font-size: 0.75rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .tab.active {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #fff;
+    }
+
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+
+    .output-box {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 20px;
+      font-family: 'DM Mono', monospace;
+      font-size: 0.82rem;
+      line-height: 1.8;
+      white-space: pre-wrap;
+      word-break: break-word;
+      color: var(--text);
+      min-height: 150px;
+      max-height: 320px;
+      overflow-y: auto;
+    }
+
+    .copy-btn {
+      margin-top: 12px;
+      background: none;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      padding: 8px 18px;
+      border-radius: 8px;
+      font-family: 'DM Mono', monospace;
+      font-size: 0.75rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .copy-btn:hover { border-color: var(--success); color: var(--success); }
+    .copy-btn.copied { border-color: var(--success); color: var(--success); }
+
+    .reset-btn {
+      width: 100%;
+      background: none;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      padding: 12px;
+      border-radius: 10px;
+      font-family: 'Syne', sans-serif;
+      font-weight: 600;
+      font-size: 0.9rem;
+      cursor: pointer;
+      margin-top: 16px;
+      transition: all 0.2s;
+    }
+
+    .reset-btn:hover { border-color: var(--accent2); color: var(--text); }
+
+    /* ERROR */
+    .error-msg {
+      display: none;
+      background: rgba(248,113,113,0.08);
+      border: 1px solid rgba(248,113,113,0.25);
+      color: var(--error);
+      padding: 14px 18px;
+      border-radius: 10px;
+      font-family: 'DM Mono', monospace;
+      font-size: 0.82rem;
+      margin-top: 12px;
+    }
+
+    /* SETTINGS MODAL */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.7);
+      backdrop-filter: blur(4px);
+      z-index: 100;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-overlay.active { display: flex; }
+
+    .modal {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 32px;
+      width: 90%;
+      max-width: 440px;
+    }
+
+    .modal h2 {
+      font-size: 1.2rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .modal p {
+      color: var(--muted);
+      font-size: 0.85rem;
+      font-family: 'DM Mono', monospace;
+      margin-bottom: 20px;
+      line-height: 1.6;
+    }
+
+    .modal input {
+      width: 100%;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      font-family: 'DM Mono', monospace;
+      font-size: 0.82rem;
+      padding: 12px 14px;
+      outline: none;
+      margin-bottom: 14px;
+      transition: border-color 0.2s;
+    }
+
+    .modal input:focus { border-color: var(--accent); }
+
+    .modal-actions { display: flex; gap: 10px; }
+
+    .btn-save {
+      flex: 1;
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 12px;
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .btn-save:hover { background: var(--accent2); }
+
+    .btn-cancel {
+      flex: 1;
+      background: none;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      border-radius: 8px;
+      padding: 12px;
+      font-family: 'Syne', sans-serif;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-cancel:hover { border-color: var(--accent2); color: var(--text); }
+
+    /* FOOTER */
+    footer {
+      text-align: center;
+      padding: 40px 0;
+      color: var(--muted);
+      font-family: 'DM Mono', monospace;
+      font-size: 0.72rem;
+      border-top: 1px solid var(--border);
+      margin-top: 40px;
+    }
+
+    /* SCROLL */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+    @media (max-width: 480px) {
+      .hero { padding: 40px 0 32px; }
+      h1 { font-size: 1.8rem; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="wrapper">
+  <nav>
+    <div class="logo">Repurpose<span>AI</span></div>
+    <button class="settings-btn" onclick="openSettings()">⚙ API Key</button>
+  </nav>
+
+  <div class="hero">
+    <div class="badge">✦ AI-Powered Content Tool</div>
+    <h1>Turn 1 Article Into<br><em>4 Pieces of Content</em></h1>
+    <p class="sub">Paste any blog post or article. Get a Twitter thread, LinkedIn post, email snippet, and Instagram caption — instantly.</p>
+    <div class="platforms">
+      <span class="platform-tag">𝕏 Twitter</span>
+      <span class="platform-tag">in LinkedIn</span>
+      <span class="platform-tag">✉ Email</span>
+      <span class="platform-tag">◻ Instagram</span>
+    </div>
+  </div>
+
+  <!-- INPUT -->
+  <div class="card" id="inputSection">
+    <div class="card-label">Your Article</div>
+    <textarea id="articleInput" placeholder="Paste your blog post or article here...&#10;&#10;Minimum 100 characters for best results." oninput="updateCount()"></textarea>
+    <div class="char-count"><span id="charCount">0</span> characters</div>
+    <button class="btn-primary" onclick="repurpose()">✦ Repurpose Now</button>
+    <div class="error-msg" id="errorMsg"></div>
+  </div>
+
+  <!-- LOADING -->
+  <div class="loading" id="loadingSection">
+    <div class="spinner"></div>
+    <p>Repurposing your content across 4 platforms...</p>
+  </div>
+
+  <!-- RESULTS -->
+  <div class="results card" id="resultsSection">
+    <div class="card-label">Your Repurposed Content</div>
+    <div class="tabs">
+      <button class="tab active" onclick="switchTab('twitter', this)">𝕏 Twitter</button>
+      <button class="tab" onclick="switchTab('linkedin', this)">in LinkedIn</button>
+      <button class="tab" onclick="switchTab('email', this)">✉ Email</button>
+      <button class="tab" onclick="switchTab('instagram', this)">◻ Instagram</button>
+    </div>
+
+    <div class="tab-content active" id="tab-twitter">
+      <div class="output-box" id="out-twitter"></div>
+      <button class="copy-btn" onclick="copyText('twitter', this)">Copy Thread</button>
+    </div>
+    <div class="tab-content" id="tab-linkedin">
+      <div class="output-box" id="out-linkedin"></div>
+      <button class="copy-btn" onclick="copyText('linkedin', this)">Copy Post</button>
+    </div>
+    <div class="tab-content" id="tab-email">
+      <div class="output-box" id="out-email"></div>
+      <button class="copy-btn" onclick="copyText('email', this)">Copy Email</button>
+    </div>
+    <div class="tab-content" id="tab-instagram">
+      <div class="output-box" id="out-instagram"></div>
+      <button class="copy-btn" onclick="copyText('instagram', this)">Copy Caption</button>
+    </div>
+
+    <button class="reset-btn" onclick="reset()">← Repurpose Another Article</button>
+  </div>
+</div>
+
+<!-- SETTINGS MODAL -->
+<div class="modal-overlay" id="settingsModal">
+  <div class="modal">
+    <h2>OpenAI API Key</h2>
+    <p>Your key is stored locally in your browser only. Never sent anywhere except OpenAI directly.</p>
+    <input type="password" id="apiKeyInput" placeholder="sk-..." />
+    <div class="modal-actions">
+      <button class="btn-save" onclick="saveKey()">Save Key</button>
+      <button class="btn-cancel" onclick="closeSettings()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<footer>
+  RepurposeAI — Powered by GPT-4o-mini · Your key stays in your browser
+</footer>
+
+<script>
+  const TABS = ['twitter', 'linkedin', 'email', 'instagram'];
+
+  function updateCount() {
+    document.getElementById('charCount').textContent =
+      document.getElementById('articleInput').value.length;
+  }
+
+  function switchTab(name, btn) {
+    TABS.forEach(t => {
+      document.getElementById('tab-' + t).classList.remove('active');
+    });
+    document.querySelectorAll('.tab').forEach(b => b.classList.remove('active'));
+    document.getElementById('tab-' + name).classList.add('active');
+    btn.classList.add('active');
+  }
+
+  function copyText(name, btn) {
+    const text = document.getElementById('out-' + name).textContent;
+    navigator.clipboard.writeText(text).then(() => {
+      btn.textContent = '✓ Copied!';
+      btn.classList.add('copied');
+      setTimeout(() => {
+        btn.textContent = 'Copy ' + (name === 'twitter' ? 'Thread' : name === 'linkedin' ? 'Post' : name === 'email' ? 'Email' : 'Caption');
+        btn.classList.remove('copied');
+      }, 2000);
+    });
+  }
+
+  function reset() {
+    document.getElementById('inputSection').style.display = 'block';
+    document.getElementById('resultsSection').style.display = 'none';
+    document.getElementById('articleInput').value = '';
+    document.getElementById('charCount').textContent = '0';
+    document.getElementById('errorMsg').style.display = 'none';
+  }
+
+  function showError(msg) {
+    const el = document.getElementById('errorMsg');
+    el.textContent = '⚠ ' + msg;
+    el.style.display = 'block';
+  }
+
+  async function repurpose() {
+    const article = document.getElementById('articleInput').value.trim();
+    const apiKey = localStorage.getItem('openai_api_key');
+
+    if (!apiKey) {
+      showError('Please add your OpenAI API key first (click ⚙ API Key button).');
+      return;
+    }
+
+    if (article.length < 100) {
+      showError('Please paste a longer article (minimum 100 characters).');
+      return;
+    }
+
+    document.getElementById('errorMsg').style.display = 'none';
+    document.getElementById('inputSection').style.display = 'none';
+    document.getElementById('loadingSection').style.display = 'block';
+
+    try {
+      const response = await fetch('/api/repurpose', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ article, apiKey }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Something went wrong');
+      }
+
+      document.getElementById('out-twitter').textContent = data.twitter;
+      document.getElementById('out-linkedin').textContent = data.linkedin;
+      document.getElementById('out-email').textContent = data.email;
+      document.getElementById('out-instagram').textContent = data.instagram;
+
+      document.getElementById('loadingSection').style.display = 'none';
+      document.getElementById('resultsSection').style.display = 'block';
+
+      // Reset to first tab
+      TABS.forEach(t => document.getElementById('tab-' + t).classList.remove('active'));
+      document.querySelectorAll('.tab').forEach(b => b.classList.remove('active'));
+      document.getElementById('tab-twitter').classList.add('active');
+      document.querySelectorAll('.tab')[0].classList.add('active');
+
+    } catch (err) {
+      document.getElementById('loadingSection').style.display = 'none';
+      document.getElementById('inputSection').style.display = 'block';
+      showError(err.message);
+    }
+  }
+
+  function openSettings() {
+    const existing = localStorage.getItem('openai_api_key') || '';
+    document.getElementById('apiKeyInput').value = existing;
+    document.getElementById('settingsModal').classList.add('active');
+  }
+
+  function saveKey() {
+    const key = document.getElementById('apiKeyInput').value.trim();
+    if (key) {
+      localStorage.setItem('openai_api_key', key);
+      closeSettings();
+    }
+  }
+
+  function closeSettings() {
+    document.getElementById('settingsModal').classList.remove('active');
+  }
+
+  // Close modal on overlay click
+  document.getElementById('settingsModal').addEventListener('click', function(e) {
+    if (e.target === this) closeSettings();
+  });
+
+  // Load existing key
+  window.onload = () => {
+    if (!localStorage.getItem('openai_api_key')) {
+      setTimeout(openSettings, 800);
+    }
+  };
+</script>
+</body>
+</html>
