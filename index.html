@@ -292,7 +292,7 @@
 
   async function repurpose() {
     const article = document.getElementById('articleInput').value.trim();
-    const apiKey = localStorage.getItem('openrouter_api_key');
+    const apiKey = localStorage.getItem('openrouter_api_key') || localStorage.getItem('openai_api_key');
     const language = document.getElementById('langSelect').value;
 
     if (!apiKey) { showError('Please add your OpenRouter API key first (click ⚙ API Key).'); return; }
@@ -336,7 +336,7 @@
   }
 
   function openSettings() {
-    const existing = localStorage.getItem('openrouter_api_key') || '';
+    const existing = localStorage.getItem('openrouter_api_key') || localStorage.getItem('openai_api_key') || '';
     document.getElementById('apiKeyInput').value = existing;
     document.getElementById('settingsModal').classList.add('active');
   }
