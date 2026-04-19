@@ -6,13 +6,13 @@ export default async function handler(req, res) {
   const { article, apiKey, tone = 'casual', language = 'English' } = req.body;
 
   if (!article || !apiKey) {
-    return res.status(400).json({ error: 'Missing article or API key' });
+    return res.status(400).json({ error: 'Missing article or API key. Please add your OpenRouter key via the ⚙ button.' });
   }
 
   const toneGuide = {
-    casual: 'Write in a friendly, conversational, relatable tone. Use simple words and feel free to use emojis.',
-    professional: 'Write in a polished, authoritative, business-appropriate tone. No slang, no emojis.',
-    funny: 'Write in a witty, humorous tone. Use clever wordplay and fun analogies.',
+    casual: 'Friendly, conversational tone. Simple words, feel free to use emojis.',
+    professional: 'Polished, authoritative, business tone. No slang, no emojis.',
+    funny: 'Witty, humorous tone. Clever wordplay and fun analogies.',
   };
 
   const prompt = `You are a content repurposing expert.
@@ -22,13 +22,14 @@ OUTPUT LANGUAGE: Write everything in ${language}.
 ARTICLE:
 ${article}
 
-Return ONLY a valid JSON object, no markdown, no backticks:
-{"twitter":"Twitter thread with hook + 4-6 numbered tweets + CTA","linkedin":"LinkedIn post 150-250 words with hook and CTA","email":"Email with Subject: on first line then 100-150 word body","instagram":"Instagram caption with punchy opener and 5-8 hashtags"}`;
+Return ONLY a raw JSON object with no markdown formatting or backticks:
+{"twitter":"Twitter thread: hook tweet + 4-5 numbered tweets (1/ 2/ etc) + CTA tweet","linkedin":"LinkedIn post 150-200 words with story hook and CTA","email":"Subject: [subject line here]\\n\\n[100-150 word email body]","instagram":"Punchy caption 3-4 lines + 6 hashtags"}`;
 
   const MODELS = [
+    'meta-llama/llama-3.2-3b-instruct:free',
     'meta-llama/llama-3.1-8b-instruct:free',
     'mistralai/mistral-7b-instruct:free',
-    'google/gemma-2-9b-it:free',
+    'qwen/qwen-2-7b-instruct:free',
   ];
 
   async function callModel(model) {
@@ -58,7 +59,10 @@ Return ONLY a valid JSON object, no markdown, no backticks:
     try {
       return JSON.parse(content);
     } catch {
-      return JSON.parse(content.replace(/```json|```/g, '').trim());
+      const clean = content.replace(/```json|```/g, '').trim();
+      const start = clean.indexOf('{');
+      const end = clean.lastIndexOf('}');
+      return JSON.parse(clean.slice(start, end + 1));
     }
   }
 
@@ -68,6 +72,6 @@ Return ONLY a valid JSON object, no markdown, no backticks:
     catch (err) { lastError = err; }
   }
 
-  if (!parsed) return res.status(500).json({ error: lastError?.message || 'All models failed.' });
+  if (!parsed) return res.status(500).json({ error: lastError?.message || 'All models failed. Check your OpenRouter API key.' });
   return res.status(200).json(parsed);
 }
