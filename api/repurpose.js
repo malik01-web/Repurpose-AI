@@ -24,7 +24,8 @@ Return ONLY a valid JSON object in this exact format (no markdown, no backticks)
 
   const MODELS = [
     'meta-llama/llama-4-maverick:free',
-    'qwen/qwen3-235b-a22b:free',
+    'qwen/qwen3-30b-a3b:free',
+    'google/gemma-3-27b-it:free',
   ];
 
   async function callModel(model) {
