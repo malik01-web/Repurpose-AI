@@ -3,32 +3,36 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const { article, apiKey } = req.body;
+  const { article, apiKey, tone = 'casual', language = 'English' } = req.body;
 
   if (!article || !apiKey) {
     return res.status(400).json({ error: 'Missing article or API key' });
   }
 
-  const prompt = `You are a professional content repurposing expert. Take the following article and rewrite it into 4 distinct content formats. Be specific, engaging, and platform-native for each format.
+  const toneGuide = {
+    casual: 'Write in a friendly, conversational, relatable tone. Use simple words and feel free to use emojis.',
+    professional: 'Write in a polished, authoritative, business-appropriate tone. No slang, no emojis.',
+    funny: 'Write in a witty, humorous tone. Use clever wordplay and fun analogies.',
+  };
+
+  const prompt = `You are a content repurposing expert.
+TONE: ${toneGuide[tone] || toneGuide.casual}
+OUTPUT LANGUAGE: Write everything in ${language}.
 
 ARTICLE:
 ${article}
 
-Return ONLY a valid JSON object in this exact format (no markdown, no backticks):
-{
-  "twitter": "A Twitter/X thread. Start with a hook tweet, then 4-6 numbered tweets (1/, 2/, etc.), end with a CTA. Use line breaks between tweets.",
-  "linkedin": "A LinkedIn post. Professional tone, 150-250 words, with a story hook, key insight, and CTA. Use line breaks for readability.",
-  "email": "An email newsletter snippet. Subject line on first line starting with 'Subject:', then the body (100-150 words). Conversational but valuable.",
-  "instagram": "An Instagram caption. Punchy opener, 3-5 lines, 5-8 relevant hashtags at the end."
-}`;
+Return ONLY a valid JSON object, no markdown, no backticks:
+{"twitter":"Twitter thread with hook + 4-6 numbered tweets + CTA","linkedin":"LinkedIn post 150-250 words with hook and CTA","email":"Email with Subject: on first line then 100-150 word body","instagram":"Instagram caption with punchy opener and 5-8 hashtags"}`;
 
   const MODELS = [
-    'meta-llama/llama-4-maverick:free',
-    'qwen/qwen3-235b-a22b:free',
+    'meta-llama/llama-3.1-8b-instruct:free',
+    'mistralai/mistral-7b-instruct:free',
+    'google/gemma-2-9b-it:free',
   ];
 
   async function callModel(model) {
-    const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+    const r = await fetch('https://openrouter.ai/api/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -44,38 +48,26 @@ Return ONLY a valid JSON object in this exact format (no markdown, no backticks)
       }),
     });
 
-    if (!response.ok) {
-      const err = await response.json();
-      throw new Error(err.error?.message || `Model ${model} failed`);
+    if (!r.ok) {
+      const err = await r.json();
+      throw new Error(err.error?.message || `${model} failed`);
     }
 
-    const data = await response.json();
+    const data = await r.json();
     const content = data.choices[0].message.content.trim();
-
     try {
       return JSON.parse(content);
     } catch {
-      const clean = content.replace(/```json|```/g, '').trim();
-      return JSON.parse(clean);
+      return JSON.parse(content.replace(/```json|```/g, '').trim());
     }
   }
 
-  let parsed;
-  let lastError;
-
+  let parsed, lastError;
   for (const model of MODELS) {
-    try {
-      parsed = await callModel(model);
-      break;
-    } catch (err) {
-      lastError = err;
-      continue;
-    }
+    try { parsed = await callModel(model); break; }
+    catch (err) { lastError = err; }
   }
 
-  if (!parsed) {
-    return res.status(500).json({ error: lastError?.message || 'All models failed. Try again.' });
-  }
-
+  if (!parsed) return res.status(500).json({ error: lastError?.message || 'All models failed.' });
   return res.status(200).json(parsed);
 }
