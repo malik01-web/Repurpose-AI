@@ -6,7 +6,7 @@ export default async function handler(req, res) {
   const { article, apiKey, tone = 'casual', language = 'English' } = req.body;
 
   if (!article || !apiKey) {
-    return res.status(400).json({ error: 'Missing article or API key. Please add your OpenRouter key via the ⚙ button.' });
+    return res.status(400).json({ error: 'Missing article or API key. Click ⚙ to add your OpenRouter key.' });
   }
 
   const toneGuide = {
@@ -22,14 +22,14 @@ OUTPUT LANGUAGE: Write everything in ${language}.
 ARTICLE:
 ${article}
 
-Return ONLY a raw JSON object with no markdown formatting or backticks:
-{"twitter":"Twitter thread: hook tweet + 4-5 numbered tweets (1/ 2/ etc) + CTA tweet","linkedin":"LinkedIn post 150-200 words with story hook and CTA","email":"Subject: [subject line here]\\n\\n[100-150 word email body]","instagram":"Punchy caption 3-4 lines + 6 hashtags"}`;
+Return ONLY a raw JSON object with no markdown or backticks:
+{"twitter":"Twitter thread: hook tweet + 4-5 numbered tweets (1/ 2/ etc) + CTA tweet","linkedin":"LinkedIn post 150-200 words with hook and CTA","email":"Subject: [subject]\\n\\n[100-150 word email body]","instagram":"Punchy caption 3-4 lines + 6 hashtags"}`;
 
+  // openrouter/free auto-selects any available free model
   const MODELS = [
-    'meta-llama/llama-3.2-3b-instruct:free',
-    'meta-llama/llama-3.1-8b-instruct:free',
-    'mistralai/mistral-7b-instruct:free',
-    'qwen/qwen-2-7b-instruct:free',
+    'openrouter/free',
+    'meta-llama/llama-3.3-70b-instruct:free',
+    'deepseek/deepseek-r1:free',
   ];
 
   async function callModel(model) {
@@ -72,6 +72,6 @@ Return ONLY a raw JSON object with no markdown formatting or backticks:
     catch (err) { lastError = err; }
   }
 
-  if (!parsed) return res.status(500).json({ error: lastError?.message || 'All models failed. Check your OpenRouter API key.' });
+  if (!parsed) return res.status(500).json({ error: lastError?.message || 'Failed. Check your OpenRouter API key at openrouter.ai/keys' });
   return res.status(200).json(parsed);
 }
