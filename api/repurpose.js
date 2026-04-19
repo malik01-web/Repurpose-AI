@@ -3,10 +3,15 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const { article, apiKey, tone = 'casual', language = 'English' } = req.body;
+  const { article, tone = 'casual', language = 'English' } = req.body;
 
-  if (!article || !apiKey) {
-    return res.status(400).json({ error: 'Missing article or API key. Click ⚙ to add your OpenRouter key.' });
+  if (!article) {
+    return res.status(400).json({ error: 'Missing article content.' });
+  }
+
+  const apiKey = process.env.OPENROUTER_API_KEY;
+  if (!apiKey) {
+    return res.status(500).json({ error: 'Server configuration error. Contact support.' });
   }
 
   const toneGuide = {
@@ -25,11 +30,11 @@ ${article}
 Return ONLY a raw JSON object with no markdown or backticks:
 {"twitter":"Twitter thread: hook tweet + 4-5 numbered tweets (1/ 2/ etc) + CTA tweet","linkedin":"LinkedIn post 150-200 words with hook and CTA","email":"Subject: [subject]\\n\\n[100-150 word email body]","instagram":"Punchy caption 3-4 lines + 6 hashtags"}`;
 
-  // openrouter/free auto-selects any available free model
   const MODELS = [
     'openrouter/free',
     'meta-llama/llama-3.3-70b-instruct:free',
-    'deepseek/deepseek-r1:free',
+    'meta-llama/llama-3.1-8b-instruct:free',
+    'mistralai/mistral-7b-instruct:free',
   ];
 
   async function callModel(model) {
@@ -38,7 +43,7 @@ Return ONLY a raw JSON object with no markdown or backticks:
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${apiKey}`,
-        'HTTP-Referer': 'https://repurpose-ai-bmki.vercel.app',
+        'HTTP-Referer': 'https://repurpose-ai-orcin.vercel.app',
         'X-Title': 'RepurposeAI',
       },
       body: JSON.stringify({
@@ -72,6 +77,6 @@ Return ONLY a raw JSON object with no markdown or backticks:
     catch (err) { lastError = err; }
   }
 
-  if (!parsed) return res.status(500).json({ error: lastError?.message || 'Failed. Check your OpenRouter API key at openrouter.ai/keys' });
+  if (!parsed) return res.status(500).json({ error: 'Service temporarily unavailable. Please try again in a moment.' });
   return res.status(200).json(parsed);
 }
