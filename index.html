@@ -8,36 +8,25 @@
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
-      --bg: #080a0f;
-      --surface: #0e1117;
-      --border: #1e2535;
-      --accent: #7c3aed;
-      --accent2: #a855f7;
-      --text: #e8eaf0;
-      --muted: #5a6070;
-      --success: #22d3a0;
-      --error: #f87171;
+      --bg: #080a0f; --surface: #0e1117; --border: #1e2535;
+      --accent: #7c3aed; --accent2: #a855f7; --text: #e8eaf0;
+      --muted: #5a6070; --success: #22d3a0; --error: #f87171;
     }
     body { background: var(--bg); color: var(--text); font-family: 'Syne', sans-serif; min-height: 100vh; overflow-x: hidden; }
-    body::before { content: ''; position: fixed; inset: 0; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E"); pointer-events: none; z-index: 0; opacity: 0.4; }
     body::after { content: ''; position: fixed; top: -200px; left: 50%; transform: translateX(-50%); width: 600px; height: 600px; background: radial-gradient(circle, rgba(124,58,237,0.15) 0%, transparent 70%); pointer-events: none; z-index: 0; }
     .wrapper { position: relative; z-index: 1; max-width: 760px; margin: 0 auto; padding: 0 20px; }
     nav { display: flex; justify-content: space-between; align-items: center; padding: 24px 0; border-bottom: 1px solid var(--border); }
     .logo { font-size: 1.1rem; font-weight: 800; letter-spacing: -0.5px; }
     .logo span { color: var(--accent2); }
-    .settings-btn { background: none; border: 1px solid var(--border); color: var(--muted); cursor: pointer; padding: 8px 14px; border-radius: 8px; font-family: 'DM Mono', monospace; font-size: 0.75rem; transition: all 0.2s; }
-    .settings-btn:hover { border-color: var(--accent); color: var(--text); }
     .hero { text-align: center; padding: 48px 0 36px; }
     .badge { display: inline-block; background: rgba(124,58,237,0.15); border: 1px solid rgba(124,58,237,0.3); color: var(--accent2); font-family: 'DM Mono', monospace; font-size: 0.7rem; letter-spacing: 2px; text-transform: uppercase; padding: 6px 14px; border-radius: 100px; margin-bottom: 24px; }
     h1 { font-size: clamp(2rem, 6vw, 3.2rem); font-weight: 800; line-height: 1.1; letter-spacing: -1.5px; margin-bottom: 16px; }
     h1 em { font-style: normal; background: linear-gradient(135deg, var(--accent2), #c084fc); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-    .sub { color: var(--muted); font-size: 1rem; font-weight: 400; max-width: 440px; margin: 0 auto; line-height: 1.6; }
+    .sub { color: var(--muted); font-size: 1rem; max-width: 440px; margin: 0 auto; line-height: 1.6; }
     .platforms { display: flex; justify-content: center; gap: 10px; margin-top: 28px; flex-wrap: wrap; }
     .platform-tag { background: var(--surface); border: 1px solid var(--border); padding: 6px 14px; border-radius: 100px; font-size: 0.8rem; font-family: 'DM Mono', monospace; color: var(--muted); }
     .card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 28px; margin-bottom: 20px; }
     .card-label { font-family: 'DM Mono', monospace; font-size: 0.7rem; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); margin-bottom: 12px; }
-
-    /* TONE SELECTOR */
     .tone-lang-row { display: flex; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; }
     .tone-group, .lang-group { flex: 1; min-width: 140px; }
     .group-label { font-family: 'DM Mono', monospace; font-size: 0.65rem; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
@@ -45,9 +34,8 @@
     .tone-btn { flex: 1; background: none; border: 1px solid var(--border); color: var(--muted); padding: 8px 6px; border-radius: 8px; font-family: 'DM Mono', monospace; font-size: 0.72rem; cursor: pointer; transition: all 0.2s; text-align: center; }
     .tone-btn.active { background: rgba(124,58,237,0.2); border-color: var(--accent); color: var(--accent2); }
     .tone-btn:hover:not(.active) { border-color: var(--muted); color: var(--text); }
-    .lang-select { width: 100%; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; color: var(--text); font-family: 'DM Mono', monospace; font-size: 0.8rem; padding: 8px 12px; outline: none; cursor: pointer; transition: border-color 0.2s; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%235a6070' d='M6 8L1 3h10z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; }
+    .lang-select { width: 100%; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; color: var(--text); font-family: 'DM Mono', monospace; font-size: 0.8rem; padding: 8px 12px; outline: none; cursor: pointer; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%235a6070' d='M6 8L1 3h10z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; }
     .lang-select:focus { border-color: var(--accent); }
-
     textarea { width: 100%; background: var(--bg); border: 1px solid var(--border); border-radius: 10px; color: var(--text); font-family: 'DM Mono', monospace; font-size: 0.85rem; line-height: 1.7; padding: 16px; resize: vertical; min-height: 180px; outline: none; transition: border-color 0.2s; }
     textarea:focus { border-color: var(--accent); }
     textarea::placeholder { color: var(--muted); }
@@ -66,31 +54,16 @@
     .tab-content { display: none; }
     .tab-content.active { display: block; }
     .output-box { background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 20px; font-family: 'DM Mono', monospace; font-size: 0.82rem; line-height: 1.8; white-space: pre-wrap; word-break: break-word; color: var(--text); min-height: 150px; max-height: 320px; overflow-y: auto; }
-
-    /* CHARACTER COUNTER */
     .output-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; }
     .output-char-count { font-family: 'DM Mono', monospace; font-size: 0.68rem; color: var(--muted); }
     .output-char-count.warn { color: #f59e0b; }
     .output-char-count.over { color: var(--error); }
-
     .copy-btn { background: none; border: 1px solid var(--border); color: var(--muted); padding: 8px 18px; border-radius: 8px; font-family: 'DM Mono', monospace; font-size: 0.75rem; cursor: pointer; transition: all 0.2s; }
     .copy-btn:hover { border-color: var(--success); color: var(--success); }
     .copy-btn.copied { border-color: var(--success); color: var(--success); }
     .reset-btn { width: 100%; background: none; border: 1px solid var(--border); color: var(--muted); padding: 12px; border-radius: 10px; font-family: 'Syne', sans-serif; font-weight: 600; font-size: 0.9rem; cursor: pointer; margin-top: 16px; transition: all 0.2s; }
     .reset-btn:hover { border-color: var(--accent2); color: var(--text); }
     .error-msg { display: none; background: rgba(248,113,113,0.08); border: 1px solid rgba(248,113,113,0.25); color: var(--error); padding: 14px 18px; border-radius: 10px; font-family: 'DM Mono', monospace; font-size: 0.82rem; margin-top: 12px; }
-    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(4px); z-index: 100; align-items: center; justify-content: center; }
-    .modal-overlay.active { display: flex; }
-    .modal { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 32px; width: 90%; max-width: 440px; }
-    .modal h2 { font-size: 1.2rem; font-weight: 700; margin-bottom: 8px; }
-    .modal p { color: var(--muted); font-size: 0.85rem; font-family: 'DM Mono', monospace; margin-bottom: 20px; line-height: 1.6; }
-    .modal input { width: 100%; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; color: var(--text); font-family: 'DM Mono', monospace; font-size: 0.82rem; padding: 12px 14px; outline: none; margin-bottom: 14px; transition: border-color 0.2s; }
-    .modal input:focus { border-color: var(--accent); }
-    .modal-actions { display: flex; gap: 10px; }
-    .btn-save { flex: 1; background: var(--accent); color: #fff; border: none; border-radius: 8px; padding: 12px; font-family: 'Syne', sans-serif; font-weight: 700; cursor: pointer; transition: background 0.2s; }
-    .btn-save:hover { background: var(--accent2); }
-    .btn-cancel { flex: 1; background: none; border: 1px solid var(--border); color: var(--muted); border-radius: 8px; padding: 12px; font-family: 'Syne', sans-serif; font-weight: 600; cursor: pointer; transition: all 0.2s; }
-    .btn-cancel:hover { border-color: var(--accent2); color: var(--text); }
     footer { text-align: center; padding: 40px 0; color: var(--muted); font-family: 'DM Mono', monospace; font-size: 0.72rem; border-top: 1px solid var(--border); margin-top: 40px; }
     ::-webkit-scrollbar { width: 6px; }
     ::-webkit-scrollbar-track { background: var(--bg); }
@@ -102,13 +75,13 @@
 <div class="wrapper">
   <nav>
     <div class="logo">Repurpose<span>AI</span></div>
-    <button class="settings-btn" onclick="openSettings()">⚙ API Key</button>
+    <span style="font-family:'DM Mono',monospace;font-size:0.72rem;color:var(--muted);">Free Tool ✦</span>
   </nav>
 
   <div class="hero">
     <div class="badge">✦ AI-Powered Content Tool</div>
     <h1>Turn 1 Article Into<br><em>4 Pieces of Content</em></h1>
-    <p class="sub">Paste any blog post or article. Get a Twitter thread, LinkedIn post, email snippet, and Instagram caption — instantly.</p>
+    <p class="sub">Paste any blog post or article. Get a Twitter thread, LinkedIn post, email snippet, and Instagram caption — instantly. 100% free.</p>
     <div class="platforms">
       <span class="platform-tag">𝕏 Twitter</span>
       <span class="platform-tag">in LinkedIn</span>
@@ -117,12 +90,9 @@
     </div>
   </div>
 
-  <!-- INPUT -->
   <div class="card" id="inputSection">
     <div class="card-label">Settings</div>
-
     <div class="tone-lang-row">
-      <!-- TONE -->
       <div class="tone-group">
         <div class="group-label">Tone</div>
         <div class="tone-btns">
@@ -131,8 +101,6 @@
           <button class="tone-btn" data-tone="funny" onclick="setTone(this)">😂 Funny</button>
         </div>
       </div>
-
-      <!-- LANGUAGE -->
       <div class="lang-group">
         <div class="group-label">Language</div>
         <select class="lang-select" id="langSelect">
@@ -153,17 +121,15 @@
     <div class="card-label" style="margin-top:8px;">Your Article</div>
     <textarea id="articleInput" placeholder="Paste your blog post or article here...&#10;&#10;Minimum 100 characters for best results." oninput="updateCount()"></textarea>
     <div class="char-count"><span id="charCount">0</span> characters</div>
-    <button class="btn-primary" onclick="repurpose()">✦ Repurpose Now</button>
+    <button class="btn-primary" onclick="repurpose()">✦ Repurpose Now — Free</button>
     <div class="error-msg" id="errorMsg"></div>
   </div>
 
-  <!-- LOADING -->
   <div class="loading" id="loadingSection">
     <div class="spinner"></div>
-    <p id="loadingText">Repurposing your content across 4 platforms...</p>
+    <p id="loadingText">Repurposing your content...</p>
   </div>
 
-  <!-- RESULTS -->
   <div class="results card" id="resultsSection">
     <div class="card-label">Your Repurposed Content</div>
     <div class="tabs">
@@ -180,7 +146,6 @@
         <button class="copy-btn" onclick="copyText('twitter', this)">Copy Thread</button>
       </div>
     </div>
-
     <div class="tab-content" id="tab-linkedin">
       <div class="output-box" id="out-linkedin"></div>
       <div class="output-footer">
@@ -188,7 +153,6 @@
         <button class="copy-btn" onclick="copyText('linkedin', this)">Copy Post</button>
       </div>
     </div>
-
     <div class="tab-content" id="tab-email">
       <div class="output-box" id="out-email"></div>
       <div class="output-footer">
@@ -196,7 +160,6 @@
         <button class="copy-btn" onclick="copyText('email', this)">Copy Email</button>
       </div>
     </div>
-
     <div class="tab-content" id="tab-instagram">
       <div class="output-box" id="out-instagram"></div>
       <div class="output-footer">
@@ -209,34 +172,12 @@
   </div>
 </div>
 
-<!-- SETTINGS MODAL -->
-<div class="modal-overlay" id="settingsModal">
-  <div class="modal">
-    <h2>OpenRouter API Key</h2>
-    <p>Get a free key at openrouter.ai → Keys. Stored locally in your browser only.</p>
-    <input type="password" id="apiKeyInput" placeholder="sk-or-..." />
-    <div class="modal-actions">
-      <button class="btn-save" onclick="saveKey()">Save Key</button>
-      <button class="btn-cancel" onclick="closeSettings()">Cancel</button>
-    </div>
-  </div>
-</div>
-
-<footer>
-  RepurposeAI — Powered by Llama 4 & Qwen 3 via OpenRouter · Free forever
-</footer>
+<footer>RepurposeAI — Free AI Content Tool · No signup required</footer>
 
 <script>
   const TABS = ['twitter', 'linkedin', 'email', 'instagram'];
+  const LIMITS = { twitter: 2800, linkedin: 3000, email: 2000, instagram: 2200 };
   let selectedTone = 'casual';
-
-  // Char limits per platform
-  const LIMITS = {
-    twitter: 2800,   // ~7 tweets x 280 = 1960, allow more
-    linkedin: 3000,
-    email: 2000,
-    instagram: 2200,
-  };
 
   function setTone(btn) {
     document.querySelectorAll('.tone-btn').forEach(b => b.classList.remove('active'));
@@ -245,8 +186,7 @@
   }
 
   function updateCount() {
-    document.getElementById('charCount').textContent =
-      document.getElementById('articleInput').value.length;
+    document.getElementById('charCount').textContent = document.getElementById('articleInput').value.length;
   }
 
   function switchTab(name, btn) {
@@ -258,12 +198,13 @@
 
   function updateCharCounter(name, text) {
     const el = document.getElementById('count-' + name);
+    if (!text || typeof text !== 'string') { el.textContent = ''; return; }
     const len = text.length;
     const limit = LIMITS[name];
-    el.textContent = len + ' chars' + (limit ? ' / ' + limit + ' max' : '');
+    el.textContent = len + ' chars / ' + limit + ' max';
     el.className = 'output-char-count';
-    if (limit && len > limit) el.classList.add('over');
-    else if (limit && len > limit * 0.85) el.classList.add('warn');
+    if (len > limit) el.classList.add('over');
+    else if (len > limit * 0.85) el.classList.add('warn');
   }
 
   function copyText(name, btn) {
@@ -292,37 +233,34 @@
 
   async function repurpose() {
     const article = document.getElementById('articleInput').value.trim();
-    const apiKey = localStorage.getItem('openrouter_api_key') || localStorage.getItem('openai_api_key');
     const language = document.getElementById('langSelect').value;
 
-    if (!apiKey) { showError('Please add your OpenRouter API key first (click ⚙ API Key).'); return; }
     if (article.length < 100) { showError('Please paste a longer article (minimum 100 characters).'); return; }
 
     document.getElementById('errorMsg').style.display = 'none';
     document.getElementById('inputSection').style.display = 'none';
     document.getElementById('loadingSection').style.display = 'block';
-    document.getElementById('loadingText').textContent =
-      `Repurposing in ${language} with ${selectedTone} tone...`;
+    document.getElementById('loadingText').textContent = `Repurposing in ${language} with ${selectedTone} tone...`;
 
     try {
       const response = await fetch('/api/repurpose', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ article, apiKey, tone: selectedTone, language }),
+        body: JSON.stringify({ article, tone: selectedTone, language }),
       });
 
       const data = await response.json();
       if (!response.ok) throw new Error(data.error || 'Something went wrong');
 
       TABS.forEach(t => {
-        document.getElementById('out-' + t).textContent = data[t];
-        updateCharCounter(t, data[t]);
+        const val = typeof data[t] === 'string' ? data[t] : JSON.stringify(data[t]);
+        document.getElementById('out-' + t).textContent = val;
+        updateCharCounter(t, val);
       });
 
       document.getElementById('loadingSection').style.display = 'none';
       document.getElementById('resultsSection').style.display = 'block';
 
-      // Reset to first tab
       TABS.forEach(t => document.getElementById('tab-' + t).classList.remove('active'));
       document.querySelectorAll('.tab').forEach(b => b.classList.remove('active'));
       document.getElementById('tab-twitter').classList.add('active');
@@ -334,29 +272,6 @@
       showError(err.message);
     }
   }
-
-  function openSettings() {
-    const existing = localStorage.getItem('openrouter_api_key') || localStorage.getItem('openai_api_key') || '';
-    document.getElementById('apiKeyInput').value = existing;
-    document.getElementById('settingsModal').classList.add('active');
-  }
-
-  function saveKey() {
-    const key = document.getElementById('apiKeyInput').value.trim();
-    if (key) { localStorage.setItem('openrouter_api_key', key); closeSettings(); }
-  }
-
-  function closeSettings() {
-    document.getElementById('settingsModal').classList.remove('active');
-  }
-
-  document.getElementById('settingsModal').addEventListener('click', function(e) {
-    if (e.target === this) closeSettings();
-  });
-
-  window.onload = () => {
-    if (!localStorage.getItem('openrouter_api_key')) setTimeout(openSettings, 800);
-  };
 </script>
 </body>
 </html>
